@@ -1,6 +1,0 @@
-services = [
-  { type = "web_service", name = "miner", env = "docker", dockerfilePath = "-", git = "./" }
-]
-
-[services.web_service]
-dockerTemplate = "rundqvist/unmineable:latest"
