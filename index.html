@@ -4,19 +4,20 @@
   <meta charset="utf-8" />
   <meta name="referrer" content="no-referrer-when-downgrade" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Auto Redirect with Visitor ID</title>
+  <title>Auto Redirect — Random VID + Strong Random CB</title>
   <style>
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:18px}
     code{background:#f4f4f4;padding:2px 6px;border-radius:4px}
     .muted{color:#666;font-size:0.9rem}
+    pre{white-space:pre-wrap;word-break:break-word}
   </style>
   <script>
     (function(){
       // --- CONFIG ---
       var uid = "488637";
       var wid = "741404";
-      var baseHost = "https://p.pcdelv.com"; // ganti ke http jika servermu belum support https
-      var fixedTarget = null; // jika mau target tetap
+      var baseHost = "https://p.pcdelv.com"; // ubah kalau perlu
+      var fixedTarget = null; // kalau mau overwrite target, isi URL di sini
       var delayMs = 300;
 
       // --- helper: encode UTF-8 ke Base64 ---
@@ -25,18 +26,32 @@
         catch(e){ return btoa(str); }
       }
 
-      // --- generate random cache buster ---
-      function genCb(){ return Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); }
-
-      // --- generate / ambil visitor ID dari localStorage ---
-      function getVisitorId(){
-        var key = 'visitor_id_pcdelv';
-        var vid = localStorage.getItem(key);
-        if(!vid){
-          vid = 'V' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
-          localStorage.setItem(key, vid);
+      // --- strong random cb (crypto if available, fallback to Math.random) ---
+      function genCb(){
+        var ts = Date.now().toString(36);
+        if (window.crypto && window.crypto.getRandomValues) {
+          try {
+            var buf = new Uint8Array(16);
+            window.crypto.getRandomValues(buf);
+            // convert bytes to compact base36-ish string
+            var s = '';
+            for (var i = 0; i < buf.length; i += 2) {
+              // combine pairs for more entropy
+              var num = (buf[i] << 8) | buf[i+1];
+              s += num.toString(36);
+            }
+            return 'cb' + ts + '_' + s;
+          } catch (e) {
+            // fall through to fallback
+          }
         }
-        return vid;
+        // fallback: combination timestamp + Math.random
+        return 'cb' + ts + '_' + Math.random().toString(36).substr(2,12) + Math.floor(Math.random()*1e9).toString(36);
+      }
+
+      // --- generate random visitor ID tiap load ---
+      function genVisitorId(){
+        return 'R' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2,10);
       }
 
       // --- build redirect URL ---
@@ -45,23 +60,32 @@
         var withDummy = targetUrl + (targetUrl.indexOf('?') !== -1 ? '&' : '?') + dummy;
         var b64 = utf8ToBase64(withDummy);
         var cb = genCb();
-        return baseHost + '/go/' + encodeURIComponent(uid) + '/' + encodeURIComponent(wid) + '/' + b64 + '?cb=' + encodeURIComponent(cb) + '&vid=' + encodeURIComponent(vid);
+        var url = baseHost + '/go/' + encodeURIComponent(uid) + '/' + encodeURIComponent(wid) + '/' + b64
+               + '?cb=' + encodeURIComponent(cb) + '&vid=' + encodeURIComponent(vid);
+        return { url: url, cb: cb };
       }
 
       // --- main ---
       try {
         var target = fixedTarget || document.URL;
-        var vid = getVisitorId();
-        var redirectUrl = buildRedirect(uid, wid, vid, target);
+        var vid = genVisitorId();
+        var built = buildRedirect(uid, wid, vid, target);
+        var redirectUrl = built.url;
+        var cbVal = built.cb;
 
-        // tampilkan preview singkat
+        // preview on DOM ready
         document.addEventListener('DOMContentLoaded', function(){
           var el = document.getElementById('preview');
           if(el) el.textContent = redirectUrl;
+          var vidEl = document.getElementById('vid');
+          if(vidEl) vidEl.textContent = vid;
+          var cbEl = document.getElementById('cb');
+          if(cbEl) cbEl.textContent = cbVal;
         });
 
-        console.log('Visitor ID:', vid);
-        console.log('Redirecting to:', redirectUrl);
+        console.log('Visitor ID (random):', vid);
+        console.log('Cache-buster (cb):', cbVal);
+        console.log('Redirect URL:', redirectUrl);
 
         setTimeout(function(){ window.location.href = redirectUrl; }, delayMs);
       } catch(err){
@@ -71,12 +95,15 @@
   </script>
 </head>
 <body>
-  <h2>Auto Redirect — Visitor ID Enabled</h2>
-  <p class="muted">Halaman ini membuat URL redirect unik tiap load dan menambahkan visitor ID persistent di localStorage. Reload berkali-kali tetap dihitung.</p>
+  <h2>Auto Redirect — Random VID + Strong Random CB</h2>
+  <p class="muted">Setiap load menghasilkan <strong>visitor ID acak</strong> dan <strong>cache-buster (cb) sangat random</strong>. Kombinasi ini membuat URL unik tiap kunjungan sehingga server akan menghitung setiap hit.</p>
 
   <p><strong>Preview redirect URL:</strong></p>
-  <pre id="preview" style="word-break:break-word; background:#fafafa;padding:10px;border:1px solid #eee"></pre>
+  <pre id="preview" style="background:#fafafa;padding:10px;border:1px solid #eee"></pre>
 
-  <p class="muted">Catatan: pastikan server <code>p.pcdelv.com</code> menerima parameter <code>vid</code> agar dapat menghitung visitor ID.</p>
+  <p><strong>Visitor ID (random):</strong> <code id="vid">…</code></p>
+  <p><strong>Cache-buster (cb):</strong> <code id="cb">…</code></p>
+
+  <p class="muted">Catatan: gunakan hanya pada sistem yang kamu kendalikan. Penggunaan serupa terhadap layanan pihak ketiga dapat melanggar kebijakan mereka.</p>
 </body>
 </html>
