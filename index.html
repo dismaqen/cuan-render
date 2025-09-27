@@ -1,44 +1,82 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <meta name="referrer" content="no-referrer-when-downgrade" />
-  <title>Auto Redirect Fresh</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Auto Redirect with Visitor ID</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:18px}
+    code{background:#f4f4f4;padding:2px 6px;border-radius:4px}
+    .muted{color:#666;font-size:0.9rem}
+  </style>
   <script>
-    // config UID, WID, dan target
-    var uid = "488637";
-    var wid = "741404";
-    var target = "https://spontaneous-nougat-ce3c2b.netlify.app/";
+    (function(){
+      // --- CONFIG ---
+      var uid = "488637";
+      var wid = "741404";
+      var baseHost = "https://p.pcdelv.com"; // ganti ke http jika servermu belum support https
+      var fixedTarget = null; // jika mau target tetap
+      var delayMs = 300;
 
-    // fungsi helper: encode jadi base64
-    function utf8ToBase64(str) {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
+      // --- helper: encode UTF-8 ke Base64 ---
+      function utf8ToBase64(str){
+        try { return btoa(unescape(encodeURIComponent(str))); }
+        catch(e){ return btoa(str); }
+      }
 
-    // generate link redirect sesuai format p.pcdelv.com
-    function generateRedirect(uid, wid, targetUrl) {
-      // Tambah query dummy random biar URL selalu beda
-      var dummy = "r=" + Math.floor(Math.random() * 1000000000);
-      var withDummy = targetUrl + (targetUrl.includes("?") ? "&" : "?") + dummy;
+      // --- generate random cache buster ---
+      function genCb(){ return Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); }
 
-      // Encode + Base64
-      var encoded = encodeURIComponent(withDummy);
-      var b64 = utf8ToBase64(encoded);
+      // --- generate / ambil visitor ID dari localStorage ---
+      function getVisitorId(){
+        var key = 'visitor_id_pcdelv';
+        var vid = localStorage.getItem(key);
+        if(!vid){
+          vid = 'V' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
+          localStorage.setItem(key, vid);
+        }
+        return vid;
+      }
 
-      // Cache buster = timestamp + random
-      var cb = Date.now().toString() + Math.floor(Math.random() * 100000);
+      // --- build redirect URL ---
+      function buildRedirect(uid, wid, vid, targetUrl){
+        var dummy = 'r=' + Math.floor(Math.random()*1e9);
+        var withDummy = targetUrl + (targetUrl.indexOf('?') !== -1 ? '&' : '?') + dummy;
+        var b64 = utf8ToBase64(withDummy);
+        var cb = genCb();
+        return baseHost + '/go/' + encodeURIComponent(uid) + '/' + encodeURIComponent(wid) + '/' + b64 + '?cb=' + encodeURIComponent(cb) + '&vid=' + encodeURIComponent(vid);
+      }
 
-      return "http://p.pcdelv.com/go/" + uid + "/" + wid + "/" + b64 + "?cb=" + cb;
-    }
+      // --- main ---
+      try {
+        var target = fixedTarget || document.URL;
+        var vid = getVisitorId();
+        var redirectUrl = buildRedirect(uid, wid, vid, target);
 
-    // saat halaman dimuat, langsung redirect
-    window.onload = function() {
-      var redirectUrl = generateRedirect(uid, wid, target);
-      window.location.href = redirectUrl;
-    };
+        // tampilkan preview singkat
+        document.addEventListener('DOMContentLoaded', function(){
+          var el = document.getElementById('preview');
+          if(el) el.textContent = redirectUrl;
+        });
+
+        console.log('Visitor ID:', vid);
+        console.log('Redirecting to:', redirectUrl);
+
+        setTimeout(function(){ window.location.href = redirectUrl; }, delayMs);
+      } catch(err){
+        console.error('Error building redirect:', err);
+      }
+    })();
   </script>
 </head>
 <body>
-  <p>Sedang mengalihkan...</p>
+  <h2>Auto Redirect — Visitor ID Enabled</h2>
+  <p class="muted">Halaman ini membuat URL redirect unik tiap load dan menambahkan visitor ID persistent di localStorage. Reload berkali-kali tetap dihitung.</p>
+
+  <p><strong>Preview redirect URL:</strong></p>
+  <pre id="preview" style="word-break:break-word; background:#fafafa;padding:10px;border:1px solid #eee"></pre>
+
+  <p class="muted">Catatan: pastikan server <code>p.pcdelv.com</code> menerima parameter <code>vid</code> agar dapat menghitung visitor ID.</p>
 </body>
 </html>
