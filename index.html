@@ -2,9 +2,43 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>RevenueCPMGate Script</title>
+  <title>Klik Vast Ad</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
+  <!-- Script iklan biasa -->
   <script type='text/javascript' src='//pl27306324.revenuecpmgate.com/6c/b3/d1/6cb3d19f3699c866920f89805d95f369.js'></script>
+
+  <!-- Script iklan + observer -->
+  <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+  <script>
+    const clicked = new Set();
+
+    const observer = new MutationObserver(() => {
+      const links = document.querySelectorAll('a[id][href]');
+      links.forEach(link => {
+        if (!clicked.has(link.href)) {
+          clicked.add(link.href);
+          // tunggu 7 detik sebelum auto klik di halaman yang sama
+          setTimeout(() => {
+            link.setAttribute("target", "_self");
+            link.click();
+          }, 7000);
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  </script>
 </body>
 </html>
