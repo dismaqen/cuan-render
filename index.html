@@ -19,16 +19,17 @@
   <!-- Script iklan + observer -->
   <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
   <script>
-    const opened = new Set();
+    const clicked = new Set();
 
     const observer = new MutationObserver(() => {
-      const links = document.querySelectorAll('a[href]');
+      const links = document.querySelectorAll('a[id][href]');
       links.forEach(link => {
-        if (!opened.has(link.href)) {
-          opened.add(link.href);
-          // tunggu 7 detik sebelum buka di halaman yang sama
+        if (!clicked.has(link.href)) {
+          clicked.add(link.href);
+          // tunggu 2 detik sebelum auto klik di halaman yang sama
           setTimeout(() => {
-            window.location.href = link.href;
+            link.setAttribute("target", "_self");
+            link.click();
           }, 5000);
         }
       });
