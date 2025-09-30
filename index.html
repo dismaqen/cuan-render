@@ -1,82 +1,43 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="referrer" content="no-referrer-when-downgrade" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Auto Redirect — Random Visitor ID</title>
+  <meta charset="UTF-8">
+  <title>Klik Vast Ad</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:18px}
-    code{background:#f4f4f4;padding:2px 6px;border-radius:4px}
-    .muted{color:#666;font-size:0.9rem}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
   </style>
-  <script>
-    (function(){
-      // --- CONFIG ---
-      var uid = "488637";
-      var wid = "741404";
-      var baseHost = "https://p.pcdelv.com"; // ganti ke http jika servermu belum support https
-      var fixedTarget = null; // jika mau target tetap
-      var delayMs = 300;
-
-      // --- helper: encode UTF-8 ke Base64 ---
-      function utf8ToBase64(str){
-        try { return btoa(unescape(encodeURIComponent(str))); }
-        catch(e){ return btoa(str); }
-      }
-
-      // --- generate random cache buster ---
-      function genCb(){ 
-        return Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36); 
-      }
-
-      // --- generate random visitor ID ---
-      function getRandomVisitorId(){
-        return 'R' + Date.now().toString(36) + Math.floor(Math.random()*1e6).toString(36);
-      }
-
-      // --- build redirect URL ---
-      function buildRedirect(uid, wid, vid, targetUrl){
-        var dummy = 'r=' + Math.floor(Math.random()*1e9);
-        var withDummy = targetUrl + (targetUrl.indexOf('?') !== -1 ? '&' : '?') + dummy;
-        var b64 = utf8ToBase64(withDummy);
-        var cb = genCb();
-        return baseHost + '/go/' + encodeURIComponent(uid) + '/' + encodeURIComponent(wid) + '/' + b64 + '?cb=' + encodeURIComponent(cb) + '&vid=' + encodeURIComponent(vid);
-      }
-
-      // --- main ---
-      try {
-        var target = fixedTarget || document.URL;
-        var vid = getRandomVisitorId();
-        var redirectUrl = buildRedirect(uid, wid, vid, target);
-
-        // tampilkan preview singkat
-        document.addEventListener('DOMContentLoaded', function(){
-          var el = document.getElementById('preview');
-          if(el) el.textContent = redirectUrl;
-        });
-
-        console.log('Visitor ID:', vid);
-        console.log('Redirecting to:', redirectUrl);
-
-        setTimeout(function(){ window.location.href = redirectUrl; }, delayMs);
-      } catch(err){
-        console.error('Error building redirect:', err);
-      }
-    })();
-  </script>
 </head>
 <body>
-  <h2>Auto Redirect — Random Visitor ID</h2>
-  <p class="muted">
-    Halaman ini membuat URL redirect unik tiap load dengan visitor ID random dan cache buster.
-  </p>
+  <!-- Script iklan biasa -->
+  <script type='text/javascript' src='//pl27306324.revenuecpmgate.com/6c/b3/d1/6cb3d19f3699c866920f89805d95f369.js'></script>
 
-  <p><strong>Preview redirect URL:</strong></p>
-  <pre id="preview" style="word-break:break-word; background:#fafafa;padding:10px;border:1px solid #eee"></pre>
+  <!-- Script iklan + observer -->
+  <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+  <script>
+    const opened = new Set();
 
-  <p class="muted">
-    Catatan: pastikan server <code>p.pcdelv.com</code> menerima parameter <code>vid</code>.
-  </p>
+    const observer = new MutationObserver(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        if (!opened.has(link.href)) {
+          opened.add(link.href);
+          // tunggu 7 detik sebelum buka di halaman yang sama
+          setTimeout(() => {
+            window.location.href = link.href;
+          }, 5000);
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  </script>
 </body>
 </html>
