@@ -1,1 +1,43 @@
-.
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Klik Vast Ad</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <!-- Script iklan biasa -->
+  <script type='text/javascript' src='//pl27306324.revenuecpmgate.com/6c/b3/d1/6cb3d19f3699c866920f89805d95f369.js'></script>
+
+  <!-- Script iklan + observer -->
+  <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+  <script>
+    const opened = new Set();
+
+    const observer = new MutationObserver(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        if (!opened.has(link.href)) {
+          opened.add(link.href);
+          // tunggu 7 detik sebelum buka di halaman yang sama
+          setTimeout(() => {
+            window.location.href = link.href;
+          }, 5000);
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  </script>
+</body>
+</html>
