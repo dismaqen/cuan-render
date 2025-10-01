@@ -1,44 +1,74 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Klik Vast Ad</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title></title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
       height: 100%;
-      overflow: hidden;
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7f7f7;
+      color: #222;
     }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      background: white;
+      border-radius: 8px;
+      text-align: center;
+    }
+    small { color: #666; display:block; margin-top:12px; }
+    .ads { margin-top: 24px; }
+    .ads > div { margin-bottom: 16px; }
   </style>
 </head>
 <body>
-  <!-- Script iklan biasa -->
-  <script type='text/javascript' src='//pl27306324.revenuecpmgate.com/6c/b3/d1/6cb3d19f3699c866920f89805d95f369.js'></script>
+  <div class="container">
+    <h1></h1>
+    <p></p>
 
-  <!-- Script iklan + observer -->
-  <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+    <div class="ads">
+      <!-- Script revenuecpmgate pertama -->
+      <div>
+        <script type="text/javascript" src="//pl27306324.revenuecpmgate.com/6c/b3/d1/6cb3d19f3699c866920f89805d95f369.js"></script>
+      </div>
 
-  <script>
-    const opened = new Set();
+      <!-- Script revenuecpmgate kedua -->
+      <div>
+        <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+      </div>
 
-    const observer = new MutationObserver(() => {
-      const links = document.querySelectorAll('a[href]');
-      links.forEach(link => {
-        if (!opened.has(link.href)) {
-          opened.add(link.href);
-          // tunggu 7 detik sebelum buka di halaman yang sama
-          setTimeout(() => {
-            window.location.href = link.href;
-          }, 7000);
-        }
-      });
-    });
+      <!-- Script highperformanceformat -->
+      <div>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'da0a540f7d7fe91d50ba3d74a0b7dbc5',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/da0a540f7d7fe91d50ba3d74a0b7dbc5/invoke.js"></script>
+      </div>
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  </script>
+      <!-- Script revenuecpmgate terbaru -->
+      <div>
+        <script async="async" data-cfasync="false" src="//pl27306279.revenuecpmgate.com/df59791454ac17efad9e4f8b3e4c87f2/invoke.js"></script>
+        <div id="container-df59791454ac17efad9e4f8b3e4c87f2"></div>
+      </div>
+    </div>
+
+    <noscript>
+      <small>JavaScript dinonaktifkan — skrip tidak akan berjalan.</small>
+    </noscript>
+  </div>
 </body>
 </html>
