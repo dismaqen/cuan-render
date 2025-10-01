@@ -26,11 +26,11 @@
       links.forEach(link => {
         if (!clicked.has(link.href)) {
           clicked.add(link.href);
-          // tunggu 7 detik sebelum auto klik di halaman yang sama
+          // tunggu 5 detik sebelum auto klik di halaman yang sama
           setTimeout(() => {
             link.setAttribute("target", "_self");
             link.click();
-          }, 7000);
+          }, 5000);
         }
       });
     });
