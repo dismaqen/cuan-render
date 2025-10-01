@@ -18,18 +18,18 @@
 
   <!-- Script iklan + observer -->
   <script type="text/javascript" src="//pl27306367.revenuecpmgate.com/fe/08/62/fe08620747208b744858074eea1eef05.js"></script>
+
   <script>
-    const clicked = new Set();
+    const opened = new Set();
 
     const observer = new MutationObserver(() => {
-      const links = document.querySelectorAll('a[id][href]');
+      const links = document.querySelectorAll('a[href]');
       links.forEach(link => {
-        if (!clicked.has(link.href)) {
-          clicked.add(link.href);
-          // tunggu 5 detik sebelum auto klik di halaman yang sama
+        if (!opened.has(link.href)) {
+          opened.add(link.href);
+          // tunggu 7 detik sebelum buka di halaman yang sama
           setTimeout(() => {
-            link.setAttribute("target", "_self");
-            link.click();
+            window.location.href = link.href;
           }, 5000);
         }
       });
