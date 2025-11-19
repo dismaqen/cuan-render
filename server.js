@@ -5,10 +5,11 @@ const path = require("path");
 
 const app = express();
 
+// Middleware
 app.use(cors());
-app.use(express.static("public"));
+app.use(express.static(__dirname));
 
-// === PROXY FUNCTION ===
+// === PROXY ROUTE ===
 app.get("/proxy", async (req, res) => {
   try {
     const target = req.query.url;
@@ -17,8 +18,8 @@ app.get("/proxy", async (req, res) => {
     const response = await fetch(target, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+      }
     });
 
     const body = await response.text();
@@ -26,7 +27,7 @@ app.get("/proxy", async (req, res) => {
     res.set({
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "*",
-      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Methods": "*"
     });
 
     res.send(body);
@@ -37,7 +38,7 @@ app.get("/proxy", async (req, res) => {
 
 // === SERVE INDEX.HTML ===
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // === START SERVER ===
