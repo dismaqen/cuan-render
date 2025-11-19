@@ -1,288 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Premium Mini Games — Single File</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Auto Klik Vast (Double Click After 7s)</title>
   <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#7c3aed; --glass: rgba(255,255,255,0.04);
-      --success:#10b981; --danger:#ef4444; --shadow: 0 6px 18px rgba(2,6,23,0.6);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial; background:linear-gradient(180deg,#071021 0%, #071827 60%); color:#e6eef5; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-      display:flex; align-items:center; justify-content:center; padding:28px;
-    }
-
-    .container{width:1100px; max-width:100%; display:grid; grid-template-columns:320px 1fr; gap:20px}
-
-    .sidebar{background:linear-gradient(180deg,var(--card), #071027); border-radius:16px; padding:18px; box-shadow:var(--shadow)}
-    .brand{display:flex; gap:12px; align-items:center}
-    .logo{width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent), #4f46e5); display:flex; align-items:center; justify-content:center; font-weight:800}
-    h1{font-size:16px;margin:4px 0 0}
-    p.lead{color:var(--muted); margin:8px 0 18px; font-size:13px}
-
-    .nav{display:flex; flex-direction:column; gap:8px}
-    .nav button{background:transparent; border:0; color:inherit; text-align:left; padding:10px; border-radius:10px; cursor:pointer}
-    .nav button.active, .nav button:hover{background:linear-gradient(90deg, rgba(124,58,237,0.12), rgba(79,70,229,0.06));}
-
-    .card{background:var(--glass); border-radius:12px; padding:16px; box-shadow:0 8px 30px rgba(2,6,23,0.6)}
-
-    .main{display:flex; flex-direction:column; gap:18px}
-    .header{display:flex; justify-content:space-between; align-items:center}
-    .controls{display:flex; gap:8px; align-items:center}
-    .btn{background:linear-gradient(90deg,var(--accent),#4f46e5); border:0; color:white; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600}
-    .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,0.06)}
-
-    /* Game area styles */
-    .game-area{display:grid; grid-template-columns:1fr 360px; gap:18px}
-    .games-list{display:grid; gap:12px}
-
-    /* TicTacToe */
-    .t3 .board{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
-    .t3 .cell{background:rgba(255,255,255,0.03); border-radius:8px; padding:18px; text-align:center; font-size:28px; cursor:pointer; user-select:none}
-
-    /* Memory */
-    .memory-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
-    .card-tile{background:linear-gradient(180deg,#071221, #0f2030); border-radius:8px; height:82px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer}
-
-    /* Snake */
-    .snake-canvas{background:#071022; border-radius:12px; width:100%; height:320px; display:flex; align-items:center; justify-content:center;}
-    canvas{border-radius:12px}
-
-    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:12px; border-radius:10px}
-
-    footer{display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px}
-
-    /* small screens */
-    @media(max-width:980px){
-      .container{grid-template-columns:1fr;}
-      .game-area{grid-template-columns:1fr}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <aside class="sidebar card">
-      <div class="brand"><div class="logo">MG</div><div>
-        <h1>Premium MiniGames</h1>
-        <p class="lead">Kompilasi game ringan untuk web — cepat, mobile friendly, & cantik.</p>
-      </div></div>
 
-      <div style="height:12px"></div>
-      <nav class="nav">
-        <button class="active" data-game="tictactoe">Tic‑Tac‑Toe</button>
-        <button data-game="memory">Memory Match</button>
-        <button data-game="snake">Classic Snake</button>
-        <button data-game="about">About / Credits</button>
-      </nav>
-
-      <div style="height:16px"></div>
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:700">Player</div>
-            <div style="color:var(--muted);font-size:13px">Guest</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-weight:700" id="globalScore">Score 0</div>
-            <div style="color:var(--muted);font-size:12px">Best: <span id="bestScore">0</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div style="height:16px"></div>
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-weight:700">Theme</div>
-          <div><button class="btn ghost" id="toggleTheme">Toggle</button></div>
-        </div>
-        <div style="color:var(--muted);font-size:13px">Mode gelap aktif — disesuaikan untuk pengalaman premium.</div>
-      </div>
-
-      <div style="height:12px"></div>
-      <footer>
-        <div>v1.0</div>
-        <div>© PremiumMG</div>
-      </footer>
-    </aside>
-
-    <main class="main">
-      <div class="header">
-        <div>
-          <h2 id="gameTitle">Tic‑Tac‑Toe</h2>
-          <div style="color:var(--muted);margin-top:6px">Pilih game dari sebelah kiri. Semua kode ada di satu file.</div>
-        </div>
-        <div class="controls">
-          <button class="btn" id="resetAll">Reset All</button>
-          <button class="btn ghost" id="shareBtn">Share</button>
-        </div>
-      </div>
-
-      <div class="game-area">
-        <section class="games-list card" id="gamesContainer">
-          <!-- TicTacToe -->
-          <div id="tictactoe" class="t3 panel" data-visible>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-              <div style="font-weight:700">Tic‑Tac‑Toe — Kamu vs Komputer</div>
-              <div style="color:var(--muted);font-size:13px">Giliran: <span id="ttTurn">X</span></div>
-            </div>
-            <div class="board" id="ttBoard"></div>
-            <div style="height:10px"></div>
-            <div style="display:flex; gap:8px">
-              <button class="btn" id="ttNew">New Game</button>
-              <button class="btn ghost" id="ttAiToggle">AI: Medium</button>
-            </div>
-          </div>
-
-          <!-- Memory -->
-          <div id="memory" class="panel" style="display:none">
-            <div style="font-weight:700;margin-bottom:8px">Memory Match</div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:10px">Flip 2 kartu yang sama untuk mendapatkan poin.</div>
-            <div class="memory-grid" id="memGrid"></div>
-            <div style="height:10px"></div>
-            <div style="display:flex;gap:8px"><button class="btn" id="memNew">Shuffle & New</button><div style="align-self:center;color:var(--muted)">Moves: <span id="memMoves">0</span></div></div>
-          </div>
-
-          <!-- Snake -->
-          <div id="snake" class="panel" style="display:none">
-            <div style="font-weight:700;margin-bottom:8px">Classic Snake</div>
-            <div style="color:var(--muted);font-size:13px;margin-bottom:10px">Gunakan panah / WASD untuk mengendalikan ular.</div>
-            <div class="snake-canvas"><canvas id="snakeCanvas" width="640" height="320"></canvas></div>
-            <div style="height:10px"></div>
-            <div style="display:flex;gap:8px"><button class="btn" id="snakeStart">Start</button><button class="btn ghost" id="snakeStop">Stop</button><div style="align-self:center;color:var(--muted)">Score: <span id="snakeScore">0</span></div></div>
-          </div>
-
-          <div id="about" class="panel" style="display:none">
-            <h3>About</h3>
-            <p style="color:var(--muted)">Single-file HTML mini games pack. Cocok untuk demonstrasi, link cepat, atau embed kecil ke blog.</p>
-            <ul style="color:var(--muted)"><li>Responsive & mobile friendly</li><li>Lightweight — no external JS libs</li><li>Customizable UI</li></ul>
-          </div>
-        </section>
-
-        <aside style="min-width:220px">
-          <div class="card panel">
-            <h4>Tips & Controls</h4>
-            <ul style="color:var(--muted)">
-              <li>Tic‑Tac‑Toe: klik kotak. Computer pakai AI sederhana.</li>
-              <li>Memory: cocokkan pasangan dalam 16 kartu.</li>
-              <li>Snake: jangan makan dinding (atau aktifkan wrap mode di kode).</li>
-            </ul>
-          </div>
-
-          <div style="height:12px"></div>
-          <div class="card panel" id="leaderboard">
-            <h4>Leaderboard (Local)</h4>
-            <div style="color:var(--muted);font-size:13px">Nama — Score</div>
-            <div id="lbList" style="margin-top:8px"></div>
-            <div style="height:8px"></div>
-            <div style="display:flex;gap:8px"><input id="nameInput" placeholder="Nama" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" /><button class="btn" id="saveScore">Save</button></div>
-          </div>
-        </aside>
-      </div>
-
-    </main>
+  <div id="frame" style="width: 100%; margin: auto; position: relative; z-index: 99998;">
+    <p id="status">Loading...</p>
   </div>
 
   <script>
-    // --- Navigation ---
-    const navButtons = document.querySelectorAll('.nav button');
-    const panels = { tictactoe:document.getElementById('tictactoe'), memory:document.getElementById('memory'), snake:document.getElementById('snake'), about:document.getElementById('about') };
-    navButtons.forEach(btn=>btn.addEventListener('click',()=>{navButtons.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); const g=btn.dataset.game; document.getElementById('gameTitle').textContent = btn.textContent; Object.values(panels).forEach(p=>p.style.display='none'); panels[g].style.display='block'; }));
+    async function fetchAndClick() {
+      const frame = document.getElementById("frame");
+      const status = document.getElementById("status");
 
-    // Theme toggle (simple)
-    document.getElementById('toggleTheme').addEventListener('click', ()=>{
-      document.body.classList.toggle('alt');
-      if(document.body.classList.contains('alt')){
-        document.documentElement.style.setProperty('--bg','#f7fafc'); document.documentElement.style.setProperty('--card','#ffffff'); document.documentElement.style.setProperty('--muted','#5b6a78'); document.documentElement.style.setProperty('--accent','#7c3aed'); document.documentElement.style.setProperty('--glass','rgba(12,18,28,0.03)'); document.body.style.color='#071022'
-      } else { document.documentElement.style.setProperty('--bg','#0f1724'); document.documentElement.style.setProperty('--card','#0b1220'); document.documentElement.style.setProperty('--muted','#9aa4b2'); document.body.style.color='#e6eef5' }
-    });
+      try {
+        // Pakai proxy server untuk fetch HTML itchytree
+        const targetUrl = "https://itchytree.com/aCWDZ.yEP_2GQH9IMJT-cL2MMNzOU_1QMRTScT2-NVTWQXwYO_TaIbwcNdT-cf2gNhCiZ_pkcl2m1n1-bpHqRrpsd_GuFvnwPxT-Az1AMBWCN_hEZFjGkH2-NJDKJLlMM_DOFPiQORT-JTmUYVmWN_lYMZzagb5-OdTeEf0gM_jiEj3kOlT-En4oJpmq1_1sbtHuRvp-dxGyFznAY_mCFDuEbFm-VHyIPJXKR_yMdNWOUPm-cRnSJTpUZ_DW0XwYNZT-FbjcYdWeY_5gNhjiQjy-ZlTmAnxoY_jqkrysZtm-JvjwZxTyM_4AOBTCkDx-NFDGIHxIN_zKkLxMONC-ZP6QbR2S5_lUaVWWQX9-NZjacbwcO_DeUf5gMhQ-?iframeId=nfqqub";
+        const res = await fetch(`/proxy?url=${encodeURIComponent(targetUrl)}`);
+        const html = await res.text();
 
-    // --- Leaderboard local storage ---
-    function loadLeaderboard(){
-      const lb = JSON.parse(localStorage.getItem('pmg_lb')||'[]'); const container = document.getElementById('lbList'); container.innerHTML=''; lb.slice(0,6).forEach(e=>{ const d = document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.marginBottom='6px'; d.innerHTML = `<div style="color:var(--muted)">${e.name}</div><div style="font-weight:700">${e.score}</div>`; container.appendChild(d); });
+        // Buat element sementara untuk parsing
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+
+        // Cari link onclick
+        const link = temp.querySelector("a[onclick]");
+        if (!link) {
+          status.innerText = "Link tidak ditemukan!";
+          return;
+        }
+
+        const onclick = link.getAttribute("onclick");
+        const match = onclick.match(/window\.open\('([^']+)'/);
+        const targetHref = match ? match[1] : null;
+
+        if (!targetHref) {
+          status.innerText = "Gagal ambil URL dari onclick!";
+          return;
+        }
+
+        status.innerText = "Link ditemukan! Auto klik dalam 7 detik...";
+        
+        // Tampilkan iframe atau image placeholder
+        frame.innerHTML = `<iframe src="${targetHref}" width="300" height="250" frameborder="0"></iframe>`;
+
+        // Auto klik + redirect setelah 7 detik
+        setTimeout(() => {
+          window.location.href = targetHref;
+        }, 7000);
+
+      } catch (err) {
+        status.innerText = "Error: " + err;
+        console.error(err);
+      }
     }
-    loadLeaderboard();
-    document.getElementById('saveScore').addEventListener('click', ()=>{
-      const n = document.getElementById('nameInput').value || 'Guest'; const s = Number(document.getElementById('globalScore').textContent.replace('Score ','')||0);
-      const lb = JSON.parse(localStorage.getItem('pmg_lb')||'[]'); lb.unshift({name:n,score:s}); lb.sort((a,b)=>b.score-a.score); localStorage.setItem('pmg_lb', JSON.stringify(lb.slice(0,20))); loadLeaderboard();
-    });
 
-    // --- Tic Tac Toe ---
-    const ttBoard = document.getElementById('ttBoard'); const ttTurnText = document.getElementById('ttTurn'); let ttState = Array(9).fill(''); let ttTurn = 'X'; let ttAI='medium';
-    function renderTT(){ ttBoard.innerHTML=''; ttState.forEach((v,i)=>{ const c = document.createElement('div'); c.className='cell'; c.dataset.index=i; c.textContent = v; c.addEventListener('click', onTTClick); ttBoard.appendChild(c); }); ttTurnText.textContent = ttTurn; }
-    function onTTClick(e){ const i=Number(e.currentTarget.dataset.index); if(ttState[i]) return; ttState[i]=ttTurn; if(checkWin(ttState,ttTurn)){ endTT(ttTurn+' wins'); return;} if(ttState.every(Boolean)){ endTT('Draw'); return;} ttTurn = ttTurn==='X'?'O':'X'; renderTT(); if(ttTurn==='O'){ // AI move (O)
-        setTimeout(()=>{ aiMove(); }, 420);
-      }}
-    function endTT(msg){ alert(msg); updateScore( msg.includes('wins') && msg.includes('X') ? 10 : 0 ); }
-    function checkWin(b,p){ const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return wins.some(line=>line.every(i=>b[i]===p)); }
-    function aiMove(){ // simple AI: win, block, random
-      const avail = ttState.map((v,i)=>v?null:i).filter(Boolean);
-      // try win
-      for(const i of avail){ const copy = ttState.slice(); copy[i]='O'; if(checkWin(copy,'O')){ ttState[i]='O'; ttTurn='X'; renderTT(); if(checkWin(ttState,'O')){ endTT('O wins (AI)'); } return; }}
-      // block
-      for(const i of avail){ const copy = ttState.slice(); copy[i]='X'; if(checkWin(copy,'X')){ ttState[i]='O'; ttTurn='X'; renderTT(); return; }}
-      // medium: take center if free
-      if(ttState[4]==='') { ttState[4]='O'; ttTurn='X'; renderTT(); return; }
-      // else random
-      const pick = avail[Math.floor(Math.random()*avail.length)]; ttState[pick]='O'; ttTurn='X'; renderTT(); }
-    document.getElementById('ttNew').addEventListener('click', ()=>{ ttState = Array(9).fill(''); ttTurn='X'; renderTT(); });
-    document.getElementById('ttAiToggle').addEventListener('click', (e)=>{ ttAI = ttAI==='medium'?'easy':'medium'; e.currentTarget.textContent = 'AI: '+(ttAI==='medium'?'Medium':'Easy'); });
-    // create board UI
-    (function initTT(){ renderTT(); })();
-
-    // --- Memory Match ---
-    const memGrid = document.getElementById('memGrid'); let memCards = []; let memFirst=null, memSecond=null, memLock=false, memMoves=0;
-    function setupMemory(){ memGrid.innerHTML=''; memCards = [];
-      const icons = ['🍓','🍌','🍇','🍉','🥝','🍍','🍒','🍑']; // 8 pairs
-      const deck = icons.concat(icons).sort(()=>Math.random()-0.5);
-      deck.forEach((val,i)=>{ const t = document.createElement('div'); t.className='card-tile'; t.dataset.val=val; t.dataset.index=i; t.textContent=''; t.addEventListener('click', ()=>flipCard(t)); memGrid.appendChild(t); memCards.push(t); }); memMoves=0; document.getElementById('memMoves').textContent='0'; }
-    function flipCard(el){ if(memLock) return; if(el.classList.contains('flipped')||el===memFirst) return; el.classList.add('flipped'); el.textContent = el.dataset.val; if(!memFirst){ memFirst=el; return; } memSecond=el; memMoves++; document.getElementById('memMoves').textContent = memMoves; if(memFirst.dataset.val === memSecond.dataset.val){ memFirst.style.visibility='hidden'; memSecond.style.visibility='hidden'; memFirst=null; memSecond=null; checkMemWin(); } else { memLock=true; setTimeout(()=>{ memFirst.classList.remove('flipped'); memFirst.textContent=''; memSecond.classList.remove('flipped'); memSecond.textContent=''; memFirst=null; memSecond=null; memLock=false; }, 800); } }
-    function checkMemWin(){ if(memCards.every(c=>c.style.visibility==='hidden')){ alert('You won Memory! Moves: '+memMoves); updateScore(20); } }
-    document.getElementById('memNew').addEventListener('click', setupMemory);
-    setupMemory();
-
-    // --- Snake ---
-    const canvas = document.getElementById('snakeCanvas'); const ctx = canvas.getContext('2d'); const grid = 16; let snake = [{x:8,y:8}]; let dir={x:1,y:0}; let food = {x:5,y:5}; let running=false; let snInterval=null; let snakeScore=0;
-    function drawSnake(){ ctx.fillStyle='#071022'; ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle='#7c3aed'; snake.forEach(s=>{ ctx.fillRect(s.x*grid, s.y*grid, grid-2, grid-2); });
-      ctx.fillStyle='#10b981'; ctx.fillRect(food.x*grid, food.y*grid, grid-2, grid-2);
-    }
-    function step(){ const head = {x:snake[0].x+dir.x, y:snake[0].y+dir.y}; // wrap
-      if(head.x < 0) head.x = canvas.width/grid -1; if(head.x >= canvas.width/grid) head.x = 0; if(head.y < 0) head.y = canvas.height/grid -1; if(head.y >= canvas.height/grid) head.y = 0;
-      // collision
-      if(snake.some(s=>s.x===head.x && s.y===head.y)){ stopSnake(); alert('Game over! Score: '+snakeScore); return; }
-      snake.unshift(head);
-      if(head.x===food.x && head.y===food.y){ snakeScore+=5; document.getElementById('snakeScore').textContent = snakeScore; placeFood(); } else { snake.pop(); }
-      drawSnake();
-    }
-    function placeFood(){ const w = canvas.width/grid; const h = canvas.height/grid; food = {x:Math.floor(Math.random()*w), y:Math.floor(Math.random()*h)}; }
-    function startSnake(){ if(running) return; running=true; snake=[{x:8,y:8},{x:7,y:8},{x:6,y:8}]; dir={x:1,y:0}; snakeScore=0; document.getElementById('snakeScore').textContent=0; placeFood(); drawSnake(); snInterval = setInterval(step, 120); }
-    function stopSnake(){ running=false; clearInterval(snInterval); }
-    document.getElementById('snakeStart').addEventListener('click', startSnake); document.getElementById('snakeStop').addEventListener('click', stopSnake);
-    window.addEventListener('keydown', (e)=>{ const k = e.key; if(k==='ArrowUp' || k==='w'){ if(dir.y!==1) dir={x:0,y:-1}; }
-      if(k==='ArrowDown' || k==='s'){ if(dir.y!==-1) dir={x:0,y:1}; }
-      if(k==='ArrowLeft' || k==='a'){ if(dir.x!==1) dir={x:-1,y:0}; }
-      if(k==='ArrowRight' || k==='d'){ if(dir.x!==-1) dir={x:1,y:0}; }
-    });
-
-    // --- Global utilities ---
-    function updateScore(inc){ const el = document.getElementById('globalScore'); let cur = Number(el.textContent.replace('Score ','')||0); cur += inc; el.textContent = 'Score '+cur; const bestEl = document.getElementById('bestScore'); if(cur > Number(bestEl.textContent||0)) bestEl.textContent = cur; }
-
-    document.getElementById('resetAll').addEventListener('click', ()=>{ localStorage.removeItem('pmg_lb'); document.getElementById('globalScore').textContent='Score 0'; document.getElementById('bestScore').textContent='0'; loadLeaderboard(); alert('Reset completed'); });
-
-    // share (simulate)
-    document.getElementById('shareBtn').addEventListener('click', ()=>{ navigator.clipboard?.writeText(window.location.href).then(()=>alert('Link disalin!')); });
-
-    // init
-    renderTT(); setupMemory(); drawSnake();
+    window.onload = fetchAndClick;
   </script>
-    <div id="frame" style="width: 100%;margin: auto;position: relative; z-index: 99998;">
-      <iframe data-aa='2417765' src='//acceptable.a-ads.com/2417765/?size=Adaptive'
-        style='border:0; padding:0; width:70%; height:auto; overflow:hidden;display: block;margin: auto'></iframe>
-    </div>
-  </body>
+
+</body>
 </html>
